@@ -1,16 +1,18 @@
 import pygame as pg
+from pygame.examples.go_over_there import screen
 
 import constants
 import constants as const
 from opponent import Opponent
 from level import Level
 from tower import Tower
+from button import Button
 
 pg.init()
 
 clock = pg.time.Clock()
 
-window = pg.display.set_mode((const.WINDOW_WIDTH, const.WINDOW_HEIGHT))
+window = pg.display.set_mode((const.WINDOW_WIDTH + const.CONTROL_PANEL, const.WINDOW_HEIGHT))
 pg.display.set_caption("Tower Defence Game")
 
 level_image = pg.image.load('assets/map1.png').convert_alpha()
@@ -22,6 +24,9 @@ tower_group = pg.sprite.Group()
 
 opponent_img = pg.image.load('assets/elf.png').convert_alpha()
 opponent_group = pg.sprite.Group()
+
+tower_button_image = pg.image.load('assets/elf1.png').convert_alpha()
+button_group = pg.sprite.Group()
 
 routes = [
     (128, 0),
@@ -39,6 +44,8 @@ routes = [
     (0, 608)
 ]
 
+placing = False
+
 def placed_tower(position):
     tile_x = position[0] // const.TILE_SIZE
     tile_y = position[1] // const.TILE_SIZE
@@ -47,19 +54,23 @@ def placed_tower(position):
         if(tile_x, tile_y) == (tow.tile_x, tow.tile_y):
             free_place = False
     color = hitbox_image.get_at((position[0] // const.TILE_SIZE, position[1] // const.TILE_SIZE))
-    if color == (0, 0, 0):
-        if free_place:
-            tower = Tower(tower_image, tile_x, tile_y)
-            tower_group.add(tower)
-            print(tower_group)
+    if free_place and color == (0, 0, 0):
+        tower = Tower(tower_image, tile_x, tile_y)
+        tower_group.add(tower)
+        print(tower_group)
 
 opponent = Opponent(routes , opponent_img)
 opponent_group.add(opponent)
+
+tower_button = Button(const.WINDOW_WIDTH + 50, 120, tower_button_image, True)
+cancel_button = Button(const.WINDOW_WIDTH + 150, 120, tower_button_image, True)
 
 run = True
 while run:
 
     clock.tick(const.FPS)
+
+    opponent_group.update()
 
     window.fill('black')
 
@@ -67,10 +78,19 @@ while run:
 
     pg.draw.lines(window, "white", False, routes)
 
-    opponent_group.update()
-
     opponent_group.draw(window)
     tower_group.draw(window)
+
+    if tower_button.draw(window):
+        placing = True
+    if placing:
+        cursor_rect = tower_image.get_rect()
+        cursor_pos = pg.mouse.get_pos()
+        cursor_rect.center = cursor_pos
+        if cursor_pos[0] <= const.WINDOW_WIDTH:
+            window.blit(tower_image, cursor_rect)
+        if cancel_button.draw(window):
+            placing = False
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -78,7 +98,8 @@ while run:
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             position = pg.mouse.get_pos()
             if(position[0] < constants.WINDOW_WIDTH and position[1] < constants.WINDOW_HEIGHT):
-                placed_tower(position)
+                if placing:
+                    placed_tower(position)
 
     pg.display.flip()
 
