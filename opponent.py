@@ -47,7 +47,6 @@ class Opponent(pg.sprite.Sprite):
 
         self.rect.center = self.pos
 
-        # Update direction based on movement
         if abs(self.movement.x) > abs(self.movement.y):
             if self.movement.x > 0:
                 self.direction = 'left'
@@ -76,5 +75,3 @@ class Opponent(pg.sprite.Sprite):
     def update(self):
         self.move()
         self.animate()
-
-

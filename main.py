@@ -1,10 +1,10 @@
 import pygame as pg
-from pygame.examples.go_over_there import screen
 
-import constants
 import constants as const
-from opponent import Opponent
+from elf import Elf
 from level import Level
+from reindeer import Reindeer
+from santa_claus import SantaClaus
 from tower import Tower
 from button import Button
 
@@ -22,27 +22,13 @@ hitbox_image = pg.image.load('assets/map1hitbox.png').convert_alpha()
 tower_image = pg.image.load('assets/elf1.png').convert_alpha()
 tower_group = pg.sprite.Group()
 
-opponent_img = pg.image.load('assets/elf.png').convert_alpha()
+reindeer_img = pg.image.load('assets/reindeer.png').convert_alpha()
+elf_img = pg.image.load('assets/elf.png').convert_alpha()
+santa_claus_img = pg.image.load('assets/santa.png').convert_alpha()
 opponent_group = pg.sprite.Group()
 
 tower_button_image = pg.image.load('assets/elf1.png').convert_alpha()
 button_group = pg.sprite.Group()
-
-routes = [
-    (128, 0),
-    (128, 288),
-    (832, 288),
-    (832, 128),
-    (1152, 128),
-    (1152, 800),
-    (608, 800),
-    (608, 544),
-    (416, 544),
-    (416, 800),
-    (192, 800),
-    (192, 608),
-    (0, 608)
-]
 
 placing = False
 
@@ -59,8 +45,12 @@ def placed_tower(position):
         tower_group.add(tower)
         print(tower_group)
 
-opponent = Opponent(routes , opponent_img)
-opponent_group.add(opponent)
+reindeer = Reindeer(const.routes , reindeer_img)
+elf = Elf(const.routes , elf_img)
+santa = SantaClaus(const.routes, santa_claus_img)
+opponent_group.add(reindeer)
+opponent_group.add(elf)
+opponent_group.add(santa)
 
 tower_button = Button(const.WINDOW_WIDTH + 50, 120, tower_button_image, True)
 cancel_button = Button(const.WINDOW_WIDTH + 150, 120, tower_button_image, True)
@@ -76,7 +66,7 @@ while run:
 
     level.draw(window)
 
-    pg.draw.lines(window, "white", False, routes)
+    pg.draw.lines(window, "white", False, const.routes)
 
     opponent_group.draw(window)
     tower_group.draw(window)
@@ -97,7 +87,7 @@ while run:
             run = False
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             position = pg.mouse.get_pos()
-            if(position[0] < constants.WINDOW_WIDTH and position[1] < constants.WINDOW_HEIGHT):
+            if position[0] < const.WINDOW_WIDTH and position[1] < const.WINDOW_HEIGHT:
                 if placing:
                     placed_tower(position)
 
