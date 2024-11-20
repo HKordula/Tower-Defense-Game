@@ -28,6 +28,7 @@ class Opponent(pg.sprite.Sprite):
         self.rect.center = self.pos
         self.animation_speed = 0.1
         self.animation_timer = 0
+        self.spawned = 0
 
     def move(self):
         if self.step < len(self.routes):

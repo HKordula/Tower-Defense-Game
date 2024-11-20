@@ -23,3 +23,48 @@ routes = [
     (192, 603),
     (0, 603)
 ]
+
+MAX_LEVEL = 3
+TOWER_LEVEL = [
+    {
+        "range": 90,
+        "cooldown": 1500,
+    },
+    {
+        "range": 100,
+        "cooldown": 1300,
+    },
+    {
+        "range": 120,
+        "cooldown": 1000,
+    },
+]
+
+SPAWN_COOLDOWN = 400
+WAVES_DATA = [
+    {
+        "elf": 10,
+        "reindeer": 2,
+        "santa_claus": 1
+    },
+    {
+        "elf": 20,
+        "reindeer": 4,
+        "santa_claus": 2
+    },
+    {
+        "elf": 20,
+        "reindeer": 8,
+        "santa_claus": 2
+    },
+    {
+        "elf": 20,
+        "reindeer": 8,
+        "santa_claus": 4
+    },
+    {
+        "elf": 20,
+        "reindeer": 10,
+        "santa_claus": 5
+    }
+]

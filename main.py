@@ -3,6 +3,7 @@ import pygame as pg
 import constants as const
 from elf import Elf
 from level import Level
+from opponent import Opponent
 from reindeer import Reindeer
 from santa_claus import SantaClaus
 from tower import Tower
@@ -18,13 +19,17 @@ pg.display.set_caption("Tower Defence Game")
 level_image = pg.image.load('assets/map1.png').convert_alpha()
 level = Level(level_image)
 hitbox_image = pg.image.load('assets/map1hitbox.png').convert_alpha()
+level.spawn_opponents()
 
 tower_image = pg.image.load('assets/tower.png').convert_alpha()
 tower_group = pg.sprite.Group()
 
-reindeer_img = pg.image.load('assets/reindeer.png').convert_alpha()
-elf_img = pg.image.load('assets/elf.png').convert_alpha()
-santa_claus_img = pg.image.load('assets/santa.png').convert_alpha()
+opponent_img = {
+    "elf": pg.image.load('assets/elf.png').convert_alpha(),
+    "reindeer": pg.image.load('assets/reindeer.png').convert_alpha(),
+    "santa_claus": pg.image.load('assets/santa.png').convert_alpha()
+}
+
 opponent_group = pg.sprite.Group()
 
 tower_button_image = pg.image.load('assets/single_tower.png').convert_alpha()
@@ -32,6 +37,7 @@ button_group = pg.sprite.Group()
 
 placing = False
 picked_tower = None
+last_opponent = pg.time.get_ticks()
 
 def placed_tower(position):
     tile_x = position[0] // const.TILE_SIZE
@@ -57,15 +63,10 @@ def drop_tower():
     for tow in tower_group:
         tow.picked = False
 
-reindeer = Reindeer(const.routes , reindeer_img)
-elf = Elf(const.routes , elf_img)
-#santa = SantaClaus(const.routes, santa_claus_img)
-opponent_group.add(reindeer)
-opponent_group.add(elf)
-#opponent_group.add(santa)
 
 tower_button = Button(const.WINDOW_WIDTH + 50, 120, tower_button_image, True)
 cancel_button = Button(const.WINDOW_WIDTH + 150, 120, tower_button_image, True)
+level_up_button = Button(const.WINDOW_WIDTH + 250, 120, tower_button_image, True)
 
 run = True
 while run:
@@ -88,6 +89,14 @@ while run:
     for tower in tower_group:
         tower.draw(window)
 
+    if pg.time.get_ticks() - last_opponent > const.SPAWN_COOLDOWN:
+        if level.spawned < len(level.opponent_list):
+            opponent_type = level.opponent_list[level.spawned]
+            opponent = level.get_opponent(opponent_type, const.routes, opponent_img[opponent_type])
+            opponent_group.add(opponent)
+            level.spawned += 1
+            last_opponent = pg.time.get_ticks()
+
     if tower_button.draw(window):
         placing = True
     if placing:
@@ -98,6 +107,11 @@ while run:
             window.blit(tower_button_image, cursor_rect)
         if cancel_button.draw(window):
             placing = False
+    if picked_tower:
+        if picked_tower.level < const.MAX_LEVEL:
+            if level_up_button.draw(window):
+                picked_tower.level_up()
+
 
     for event in pg.event.get():
         if event.type == pg.QUIT:

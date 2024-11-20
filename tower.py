@@ -3,6 +3,7 @@ import math
 import pygame as pg
 import constants as const
 
+
 def load_sprite_sheet(sheet, frame_width, frame_height):
     sheet_rect = sheet.get_rect()
     sprites = []
@@ -17,8 +18,9 @@ def load_sprite_sheet(sheet, frame_width, frame_height):
 class Tower(pg.sprite.Sprite):
     def __init__(self, image, tile_x, tile_y):
         pg.sprite.Sprite.__init__(self)
-        self.range = 100
-        self.cooldown = 1500
+        self.level = 1
+        self.range = const.TOWER_LEVEL[self.level - 1].get("range")
+        self.cooldown = const.TOWER_LEVEL[self.level - 1].get("cooldown")
         self.last_snowball = pg.time.get_ticks()
         self.picked = False
         self.target = None
@@ -80,9 +82,6 @@ class Tower(pg.sprite.Sprite):
             surface.blit(self.range_area, self.range_rect)
 
     def chose_opponent(self, opponent_group):
-        x_dist = 0
-        y_dist = 0
-
         for opp in opponent_group:
             x_dist = opp.pos[0] - self.x
             y_dist = opp.pos[1] - self.y
@@ -90,3 +89,16 @@ class Tower(pg.sprite.Sprite):
             if dist < self.range:
                 self.target = opp
                 print("Targeted")
+
+    def level_up(self):
+        self.level += 1
+        self.range = const.TOWER_LEVEL[self.level - 1].get("range")
+        self.cooldown = const.TOWER_LEVEL[self.level - 1].get("cooldown")
+
+        self.range_area = pg.Surface((self.range * 2, self.range * 2))
+        self.range_area.fill((180, 0, 0))
+        self.range_area.set_colorkey((180, 0, 0))
+        pg.draw.circle(self.range_area, "black", (self.range, self.range), self.range)
+        self.range_area.set_alpha(100)
+        self.range_rect = self.range_area.get_rect()
+        self.range_rect.center = self.rect.center
