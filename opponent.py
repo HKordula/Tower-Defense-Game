@@ -1,5 +1,6 @@
 import pygame as pg
 from pygame.math import Vector2
+import constants as const
 
 def load_sprite_sheet(sheet, frame_width, frame_height):
     sheet_rect = sheet.get_rect()
@@ -29,13 +30,15 @@ class Opponent(pg.sprite.Sprite):
         self.animation_speed = 0.1
         self.animation_timer = 0
         self.spawned = 0
+        self.health = 10
 
-    def move(self):
+    def move(self, level):
         if self.step < len(self.routes):
             self.target = Vector2(self.routes[self.step])
             self.movement = self.target - self.pos
         else:
             self.kill()
+            level.health -= const.PUNISH
 
         dist = self.movement.length()
 
@@ -73,6 +76,12 @@ class Opponent(pg.sprite.Sprite):
         }
         self.image = self.frames[direction_map[self.direction]][self.frame_index]
 
-    def update(self):
-        self.move()
+    def update(self, level):
+        self.move(level)
         self.animate()
+        self.kill_opponent(level)
+
+    def kill_opponent(self, level):
+        if self.health <= 0:
+            self.kill()
+            level.money += const.BOUNTY

@@ -83,12 +83,15 @@ class Tower(pg.sprite.Sprite):
 
     def chose_opponent(self, opponent_group):
         for opp in opponent_group:
-            x_dist = opp.pos[0] - self.x
-            y_dist = opp.pos[1] - self.y
-            dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
-            if dist < self.range:
-                self.target = opp
-                print("Targeted")
+            if opp.health > 0:
+                x_dist = opp.pos[0] - self.x
+                y_dist = opp.pos[1] - self.y
+                dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
+                if dist < self.range:
+                    self.target = opp
+                    print("Targeted")
+                    self.target.health -= const.DAMAGE
+                    break
 
     def level_up(self):
         self.level += 1

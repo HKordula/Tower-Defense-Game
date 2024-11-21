@@ -5,4 +5,3 @@ class SantaClaus(Opponent):
         super().__init__(routes, sprite_sheet)
         self.health = 50
         self.speed = 1
-        self.spawned = 0

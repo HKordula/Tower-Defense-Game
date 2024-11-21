@@ -5,5 +5,4 @@ class Elf(Opponent):
         super().__init__(routes, sprite_sheet)
         self.health = 10
         self.speed = 2
-        self.spawned = 0
 

@@ -6,7 +6,6 @@ class Reindeer(Opponent):
         super().__init__(routes, sprite_sheet)
         self.health = 15
         self.speed = 3
-        self.spawned = 0
 
         self.speed = 2.5
         self.frames = opponent.load_sprite_sheet(sprite_sheet, 96, 96)

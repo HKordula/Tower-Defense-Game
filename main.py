@@ -1,4 +1,5 @@
 import pygame as pg
+from pygame.examples.scrap_clipboard import screen
 
 import constants as const
 from elf import Elf
@@ -35,9 +36,15 @@ opponent_group = pg.sprite.Group()
 tower_button_image = pg.image.load('assets/single_tower.png').convert_alpha()
 button_group = pg.sprite.Group()
 
+font = pg.font.SysFont("Consolas", 20, bold= True)
+
 placing = False
 picked_tower = None
 last_opponent = pg.time.get_ticks()
+
+def write_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    window.blit(img, (x, y))
 
 def placed_tower(position):
     tile_x = position[0] // const.TILE_SIZE
@@ -50,6 +57,7 @@ def placed_tower(position):
     if free_place and color == (0, 0, 0):
         tower = Tower(tower_image, tile_x, tile_y)
         tower_group.add(tower)
+        level.money -= const.TOWER_PRICE
         print(tower_group)
 
 def pick_tower(position):
@@ -73,7 +81,7 @@ while run:
 
     clock.tick(const.FPS)
 
-    opponent_group.update()
+    opponent_group.update(level)
     tower_group.update(opponent_group)
 
     if picked_tower:
@@ -88,6 +96,9 @@ while run:
     opponent_group.draw(window)
     for tower in tower_group:
         tower.draw(window)
+
+    write_text(str(level.health), font, "black", 0, 0)
+    write_text(str(level.money), font, "black", 0, 50)
 
     if pg.time.get_ticks() - last_opponent > const.SPAWN_COOLDOWN:
         if level.spawned < len(level.opponent_list):
@@ -110,7 +121,9 @@ while run:
     if picked_tower:
         if picked_tower.level < const.MAX_LEVEL:
             if level_up_button.draw(window):
-                picked_tower.level_up()
+                if level.money >= const.TOWER_UPGRADE:
+                    picked_tower.level_up()
+                    level.money -= const.TOWER_UPGRADE
 
 
     for event in pg.event.get():
@@ -122,7 +135,8 @@ while run:
                 picked_tower = None
                 drop_tower()
                 if placing:
-                    placed_tower(position)
+                    if level.money >= const.TOWER_PRICE:
+                        placed_tower(position)
                 else:
                     picked_tower = pick_tower(position)
 

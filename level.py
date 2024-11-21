@@ -13,6 +13,8 @@ class Level():
         self.image = level_img
         self.level = 1
         self.spawned = 0
+        self.health = const.HEALTH
+        self.money = const.MONEY
 
     def draw(self, surface):
         surface.blit(self.image, (0, 0))
