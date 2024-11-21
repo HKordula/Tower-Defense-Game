@@ -16,7 +16,10 @@ TOWER_UPGRADE = 100
 
 DAMAGE = 20
 BOUNTY = 50
-PUNISH = 10
+PUNISH = 100
+REWARD = 100
+
+LEVELS = 1
 
 routes = [
     (128, 0),
@@ -53,9 +56,9 @@ TOWER_LEVEL = [
 SPAWN_COOLDOWN = 400
 WAVES_DATA = [
     {
-        "elf": 10,
-        "reindeer": 2,
-        "santa_claus": 1
+        "elf": 1,
+        "reindeer": 1,
+        "santa_claus": 0
     },
     {
         "elf": 20,

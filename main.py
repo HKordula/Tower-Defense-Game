@@ -1,12 +1,7 @@
 import pygame as pg
-from pygame.examples.scrap_clipboard import screen
 
 import constants as const
-from elf import Elf
 from level import Level
-from opponent import Opponent
-from reindeer import Reindeer
-from santa_claus import SantaClaus
 from tower import Tower
 from button import Button
 
@@ -38,6 +33,9 @@ button_group = pg.sprite.Group()
 
 font = pg.font.SysFont("Consolas", 20, bold= True)
 
+start_level = False
+game_over = False
+game_result = 0
 placing = False
 picked_tower = None
 last_opponent = pg.time.get_ticks()
@@ -75,17 +73,27 @@ def drop_tower():
 tower_button = Button(const.WINDOW_WIDTH + 50, 120, tower_button_image, True)
 cancel_button = Button(const.WINDOW_WIDTH + 150, 120, tower_button_image, True)
 level_up_button = Button(const.WINDOW_WIDTH + 250, 120, tower_button_image, True)
+start_button = Button(const.WINDOW_WIDTH + 350, 120, tower_button_image, True)
+restart_button = Button(const.WINDOW_WIDTH + 350, 160, tower_button_image, True)
 
 run = True
 while run:
 
     clock.tick(const.FPS)
 
-    opponent_group.update(level)
-    tower_group.update(opponent_group)
+    if game_over == False:
+        if level.health <= 0:
+            game_over = True
+            game_result = -1
+        if level.level > const.LEVELS:
+            game_over = True
+            game_result = 1
 
-    if picked_tower:
-        picked_tower.picked = True
+        opponent_group.update(level)
+        tower_group.update(opponent_group)
+
+        if picked_tower:
+            picked_tower.picked = True
 
     window.fill('black')
 
@@ -99,31 +107,64 @@ while run:
 
     write_text(str(level.health), font, "black", 0, 0)
     write_text(str(level.money), font, "black", 0, 50)
+    write_text(str(level.level), font, "black", 0, 100)
 
-    if pg.time.get_ticks() - last_opponent > const.SPAWN_COOLDOWN:
-        if level.spawned < len(level.opponent_list):
-            opponent_type = level.opponent_list[level.spawned]
-            opponent = level.get_opponent(opponent_type, const.routes, opponent_img[opponent_type])
-            opponent_group.add(opponent)
-            level.spawned += 1
+    if game_over == False:
+        if start_level == False:
+            if start_button.draw(window):
+                start_level = True
+        else:
+            if pg.time.get_ticks() - last_opponent > const.SPAWN_COOLDOWN:
+                if level.spawned < len(level.opponent_list):
+                    opponent_type = level.opponent_list[level.spawned]
+                    opponent = level.get_opponent(opponent_type, const.routes, opponent_img[opponent_type])
+                    opponent_group.add(opponent)
+                    level.spawned += 1
+                    last_opponent = pg.time.get_ticks()
+
+        if level.level_up() == True:
+            start_level = False
+            level.level += 1
             last_opponent = pg.time.get_ticks()
+            level.reset_stats()
+            level.spawn_opponents()
+            level.money += const.REWARD
 
-    if tower_button.draw(window):
-        placing = True
-    if placing:
-        cursor_rect = tower_button_image.get_rect()
-        cursor_pos = pg.mouse.get_pos()
-        cursor_rect.center = cursor_pos
-        if cursor_pos[0] <= const.WINDOW_WIDTH:
-            window.blit(tower_button_image, cursor_rect)
-        if cancel_button.draw(window):
+        if tower_button.draw(window):
+            placing = True
+        if placing:
+            cursor_rect = tower_button_image.get_rect()
+            cursor_pos = pg.mouse.get_pos()
+            cursor_rect.center = cursor_pos
+            if cursor_pos[0] <= const.WINDOW_WIDTH:
+                window.blit(tower_button_image, cursor_rect)
+            if cancel_button.draw(window):
+                placing = False
+        if picked_tower:
+            if picked_tower.level < const.MAX_LEVEL:
+                if level_up_button.draw(window):
+                    if level.money >= const.TOWER_UPGRADE:
+                        picked_tower.level_up()
+                        level.money -= const.TOWER_UPGRADE
+    else:
+        pg.draw.rect(window, "green", (200, 200, 400, 200) , border_radius=30)
+        if game_result == -1:
+            write_text("You lose", font, "red", 310, 230)
+        elif game_result == 1:
+            write_text("You win", font, "red", 310, 230)
+        if restart_button.draw(window):
+            game_over = False
+            start_level = False
             placing = False
-    if picked_tower:
-        if picked_tower.level < const.MAX_LEVEL:
-            if level_up_button.draw(window):
-                if level.money >= const.TOWER_UPGRADE:
-                    picked_tower.level_up()
-                    level.money -= const.TOWER_UPGRADE
+            picked_tower = None
+            last_opponent = pg.time.get_ticks()
+            level_image = pg.image.load('assets/map1.png').convert_alpha()
+            level = Level(level_image)
+            hitbox_image = pg.image.load('assets/map1hitbox.png').convert_alpha()
+            level.spawn_opponents()
+            opponent_group.empty()
+            tower_group.empty()
+
 
 
     for event in pg.event.get():

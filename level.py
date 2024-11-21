@@ -13,6 +13,8 @@ class Level():
         self.image = level_img
         self.level = 1
         self.spawned = 0
+        self.killed = 0
+        self.missed = 0
         self.health = const.HEALTH
         self.money = const.MONEY
 
@@ -34,3 +36,13 @@ class Level():
             return Reindeer(routes, sprite_sheet)
         elif name == "santa_claus":
             return SantaClaus(routes, sprite_sheet)
+
+    def level_up(self):
+        if len(self.opponent_list) == self.killed + self.missed:
+            return True
+
+    def reset_stats(self):
+        self.opponent_list = []
+        self.spawned = 0
+        self.killed = 0
+        self.missed = 0

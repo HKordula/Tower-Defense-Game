@@ -39,6 +39,7 @@ class Opponent(pg.sprite.Sprite):
         else:
             self.kill()
             level.health -= const.PUNISH
+            level.missed += 1
 
         dist = self.movement.length()
 
@@ -85,3 +86,4 @@ class Opponent(pg.sprite.Sprite):
         if self.health <= 0:
             self.kill()
             level.money += const.BOUNTY
+            level.killed +=1
