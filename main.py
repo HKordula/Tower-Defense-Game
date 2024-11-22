@@ -28,10 +28,25 @@ opponent_img = {
 
 opponent_group = pg.sprite.Group()
 
-tower_button_image = pg.image.load('assets/single_tower.png').convert_alpha()
+buy_button_image = pg.image.load('assets/buttons/buy.png').convert_alpha()
+upgrade_button_image = pg.image.load('assets/buttons/upgrade.png').convert_alpha()
+cancel_button_image = pg.image.load('assets/buttons/cancel.png').convert_alpha()
+start_button_image = pg.image.load('assets/buttons/start.png').convert_alpha()
+restart_button_image = pg.image.load('assets/buttons/restart.png').convert_alpha()
+speed_button_image = pg.image.load('assets/buttons/speed.png').convert_alpha()
 button_group = pg.sprite.Group()
 
-font = pg.font.SysFont("Consolas", 20, bold= True)
+tower_mouse_image = pg.image.load('assets/single_tower.png').convert_alpha()
+
+level_icon = pg.image.load('assets/icons/star.png').convert_alpha()
+health_icon = pg.image.load('assets/icons/health.png').convert_alpha()
+money_icon = pg.image.load('assets/icons/gift.png').convert_alpha()
+tower_icon = pg.image.load('assets/icons/santa_hat.png').convert_alpha()
+
+#music = pg.mixer.Sound('assets/music.wav')
+#music.set_volume(0.1)
+
+font = pg.font.SysFont("Courier New ", 60, bold= True)
 
 start_level = False
 game_over = False
@@ -39,6 +54,22 @@ game_result = 0
 placing = False
 picked_tower = None
 last_opponent = pg.time.get_ticks()
+
+def control_panel():
+    pg.draw.rect(window, (92, 0, 0), (const.WINDOW_WIDTH, 0, const.CONTROL_PANEL, const.WINDOW_HEIGHT))
+    pg.draw.rect(window, "black", (const.WINDOW_WIDTH, 0, const.CONTROL_PANEL, const.WINDOW_HEIGHT), 5)
+
+    write_text(str(level.level), font, (236, 255, 235), const.WINDOW_WIDTH + 100, 15)
+    window.blit(level_icon, (const.WINDOW_WIDTH + 20, 10))
+    write_text(str(level.health), font, (236, 255, 235), const.WINDOW_WIDTH + 100, 100)
+    window.blit(health_icon, (const.WINDOW_WIDTH + 20, 100))
+    write_text(str(level.money), font, (236, 255, 235), const.WINDOW_WIDTH + 330, 100)
+    window.blit(money_icon, (const.WINDOW_WIDTH + 250, 100))
+
+    window.blit(tower_icon, (const.WINDOW_WIDTH + 20, 220))
+    write_text(str(const.TOWER_PRICE), font, (236, 255, 235), const.WINDOW_WIDTH + 310, 225)
+    window.blit(money_icon, (const.WINDOW_WIDTH + 420, 220))
+
 
 def write_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
@@ -70,11 +101,14 @@ def drop_tower():
         tow.picked = False
 
 
-tower_button = Button(const.WINDOW_WIDTH + 50, 120, tower_button_image, True)
-cancel_button = Button(const.WINDOW_WIDTH + 150, 120, tower_button_image, True)
-level_up_button = Button(const.WINDOW_WIDTH + 250, 120, tower_button_image, True)
-start_button = Button(const.WINDOW_WIDTH + 350, 120, tower_button_image, True)
-restart_button = Button(const.WINDOW_WIDTH + 350, 160, tower_button_image, True)
+buy_button = Button(const.WINDOW_WIDTH + 100, 210, buy_button_image, True)
+upgrade_button = Button(const.WINDOW_WIDTH + 100, 260, upgrade_button_image, True)
+cancel_button = Button(const.WINDOW_WIDTH + 100, 310, cancel_button_image, True)
+start_button = Button(const.WINDOW_WIDTH + 150, 420, start_button_image, True)
+restart_button = Button(350, 160, restart_button_image, True)
+speed_button = Button(const.WINDOW_WIDTH + 350, 200, speed_button_image, True)
+
+#music.play()
 
 run = True
 while run:
@@ -90,12 +124,10 @@ while run:
             game_result = 1
 
         opponent_group.update(level)
-        tower_group.update(opponent_group)
+        tower_group.update(opponent_group, level)
 
         if picked_tower:
             picked_tower.picked = True
-
-    window.fill('black')
 
     level.draw(window)
 
@@ -105,15 +137,17 @@ while run:
     for tower in tower_group:
         tower.draw(window)
 
-    write_text(str(level.health), font, "black", 0, 0)
-    write_text(str(level.money), font, "black", 0, 50)
-    write_text(str(level.level), font, "black", 0, 100)
+    control_panel()
 
     if game_over == False:
         if start_level == False:
             if start_button.draw(window):
                 start_level = True
         else:
+            level.speed = 1
+            if speed_button.draw(window):
+                level.speed = 2
+
             if pg.time.get_ticks() - last_opponent > const.SPAWN_COOLDOWN:
                 if level.spawned < len(level.opponent_list):
                     opponent_type = level.opponent_list[level.spawned]
@@ -130,19 +164,19 @@ while run:
             level.spawn_opponents()
             level.money += const.REWARD
 
-        if tower_button.draw(window):
+        if buy_button.draw(window):
             placing = True
         if placing:
-            cursor_rect = tower_button_image.get_rect()
+            cursor_rect = tower_mouse_image.get_rect()
             cursor_pos = pg.mouse.get_pos()
             cursor_rect.center = cursor_pos
             if cursor_pos[0] <= const.WINDOW_WIDTH:
-                window.blit(tower_button_image, cursor_rect)
+                window.blit(tower_mouse_image, cursor_rect)
             if cancel_button.draw(window):
                 placing = False
         if picked_tower:
             if picked_tower.level < const.MAX_LEVEL:
-                if level_up_button.draw(window):
+                if upgrade_button.draw(window):
                     if level.money >= const.TOWER_UPGRADE:
                         picked_tower.level_up()
                         level.money -= const.TOWER_UPGRADE
@@ -164,8 +198,6 @@ while run:
             level.spawn_opponents()
             opponent_group.empty()
             tower_group.empty()
-
-
 
     for event in pg.event.get():
         if event.type == pg.QUIT:

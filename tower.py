@@ -69,11 +69,11 @@ class Tower(pg.sprite.Sprite):
 
             self.image = self.frames[0][self.frame_index]
 
-    def update(self, opponent_group):
+    def update(self, opponent_group, level):
         if self.target:
             self.animate()
         else:
-            if pg.time.get_ticks() - self.last_snowball > self.cooldown:
+            if pg.time.get_ticks() - self.last_snowball > (self.cooldown / level.speed):
                 self.chose_opponent(opponent_group)
 
     def draw(self, surface):

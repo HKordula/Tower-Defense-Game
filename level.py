@@ -12,6 +12,7 @@ class Level():
         self.opponent_list = []
         self.image = level_img
         self.level = 1
+        self.speed = 1
         self.spawned = 0
         self.killed = 0
         self.missed = 0
@@ -20,6 +21,7 @@ class Level():
 
     def draw(self, surface):
         surface.blit(self.image, (0, 0))
+
 
     def spawn_opponents(self):
         opponents = const.WAVES_DATA[self.level - 1]

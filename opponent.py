@@ -43,8 +43,8 @@ class Opponent(pg.sprite.Sprite):
 
         dist = self.movement.length()
 
-        if dist >= self.speed:
-            self.pos += self.movement.normalize() * self.speed
+        if dist >= (self.speed * level.speed):
+            self.pos += self.movement.normalize() * (self.speed * level.speed)
         else:
             if dist != 0:
                 self.pos += self.movement.normalize() * dist
