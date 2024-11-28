@@ -12,18 +12,27 @@ clock = pg.time.Clock()
 window = pg.display.set_mode((const.WINDOW_WIDTH + const.CONTROL_PANEL, const.WINDOW_HEIGHT))
 pg.display.set_caption("Tower Defence Game")
 
-level_image = pg.image.load('assets/map1.png').convert_alpha()
+
 level = Level(level_image)
-hitbox_image = pg.image.load('assets/map1hitbox.png').convert_alpha()
+hitbox_image = pg.image.load('assets/map/map1hitbox.png').convert_alpha()
 level.spawn_opponents()
 
 tower_image = pg.image.load('assets/tower.png').convert_alpha()
+
 tower_group = pg.sprite.Group()
+
+snowball_image = pg.image.load('assets/snowball.png').convert_alpha()
 
 opponent_img = {
     "elf": pg.image.load('assets/elf.png').convert_alpha(),
     "reindeer": pg.image.load('assets/reindeer.png').convert_alpha(),
     "santa_claus": pg.image.load('assets/santa.png').convert_alpha()
+}
+
+opponent_idle_img = {
+    "elf": pg.image.load('assets/elf-idle.png').convert_alpha(),
+    "reindeer": pg.image.load('assets/reindeer-idle.png').convert_alpha(),
+    "santa_claus": pg.image.load('assets/santa-idle.png').convert_alpha()
 }
 
 opponent_group = pg.sprite.Group()
@@ -59,7 +68,7 @@ def control_panel():
     pg.draw.rect(window, (92, 0, 0), (const.WINDOW_WIDTH, 0, const.CONTROL_PANEL, const.WINDOW_HEIGHT))
     pg.draw.rect(window, "black", (const.WINDOW_WIDTH, 0, const.CONTROL_PANEL, const.WINDOW_HEIGHT), 5)
 
-    write_text(str(level.level), font, (236, 255, 235), const.WINDOW_WIDTH + 100, 15)
+    write_text(str(level.level) + "/" + str(const.LEVELS), font, (236, 255, 235), const.WINDOW_WIDTH + 100, 15)
     window.blit(level_icon, (const.WINDOW_WIDTH + 20, 10))
     write_text(str(level.health), font, (236, 255, 235), const.WINDOW_WIDTH + 100, 100)
     window.blit(health_icon, (const.WINDOW_WIDTH + 20, 100))
@@ -69,6 +78,17 @@ def control_panel():
     window.blit(tower_icon, (const.WINDOW_WIDTH + 20, 220))
     write_text(str(const.TOWER_PRICE), font, (236, 255, 235), const.WINDOW_WIDTH + 310, 225)
     window.blit(money_icon, (const.WINDOW_WIDTH + 420, 220))
+
+    wave_data = const.WAVES_DATA[level.level - 1]
+    opponent_counts = list(wave_data.values())
+
+    write_text("Opponents", font, (236, 255, 235), const.WINDOW_WIDTH + 90, 770)
+    window.blit(opponent_idle_img["elf"], (const.WINDOW_WIDTH + 25, 850))
+    write_text(str(opponent_counts[0]), font, (236, 255, 235), const.WINDOW_WIDTH + 95, 860)
+    window.blit(opponent_idle_img["reindeer"], (const.WINDOW_WIDTH + 175, 834))
+    write_text(str(opponent_counts[1]), font, (236, 255, 235), const.WINDOW_WIDTH + 245, 860)
+    window.blit(opponent_idle_img["santa_claus"], (const.WINDOW_WIDTH + 325, 850))
+    write_text(str(opponent_counts[2]), font, (236, 255, 235), const.WINDOW_WIDTH + 395, 860)
 
 
 def write_text(text, font, text_col, x, y):
@@ -80,7 +100,7 @@ def placed_tower(position):
     tile_y = position[1] // const.TILE_SIZE
     free_place = True
     for tow in tower_group:
-        if(tile_x, tile_y) == (tow.tile_x, tow.tile_y):
+        if (tile_x, tile_y) == (tow.tile_x, tow.tile_y):
             free_place = False
     color = hitbox_image.get_at((position[0] // const.TILE_SIZE, position[1] // const.TILE_SIZE))
     if free_place and color == (0, 0, 0):
@@ -102,11 +122,11 @@ def drop_tower():
 
 
 buy_button = Button(const.WINDOW_WIDTH + 100, 210, buy_button_image, True)
-upgrade_button = Button(const.WINDOW_WIDTH + 100, 260, upgrade_button_image, True)
+upgrade_button = Button(const.WINDOW_WIDTH + 100, 210, upgrade_button_image, True)
 cancel_button = Button(const.WINDOW_WIDTH + 100, 310, cancel_button_image, True)
 start_button = Button(const.WINDOW_WIDTH + 150, 420, start_button_image, True)
-restart_button = Button(350, 160, restart_button_image, True)
-speed_button = Button(const.WINDOW_WIDTH + 350, 200, speed_button_image, True)
+restart_button = Button(550, 480, restart_button_image, True)
+speed_button = Button(const.WINDOW_WIDTH + 150, 420, speed_button_image, False)
 
 #music.play()
 
@@ -115,7 +135,7 @@ while run:
 
     clock.tick(const.FPS)
 
-    if game_over == False:
+    if not game_over:
         if level.health <= 0:
             game_over = True
             game_result = -1
@@ -139,8 +159,8 @@ while run:
 
     control_panel()
 
-    if game_over == False:
-        if start_level == False:
+    if not game_over:
+        if not start_level:
             if start_button.draw(window):
                 start_level = True
         else:
@@ -156,7 +176,7 @@ while run:
                     level.spawned += 1
                     last_opponent = pg.time.get_ticks()
 
-        if level.level_up() == True:
+        if level.level_up():
             start_level = False
             level.level += 1
             last_opponent = pg.time.get_ticks()
@@ -181,11 +201,12 @@ while run:
                         picked_tower.level_up()
                         level.money -= const.TOWER_UPGRADE
     else:
-        pg.draw.rect(window, "green", (200, 200, 400, 200) , border_radius=30)
+        pg.draw.rect(window, (92, 0, 0), (const.WINDOW_WIDTH / 2 - 200, const.WINDOW_HEIGHT / 2 - 125, 400, 250), border_radius=30)
+        pg.draw.rect(window, "black", (const.WINDOW_WIDTH / 2 - 200, const.WINDOW_HEIGHT / 2 - 125, 400, 250), 5, border_radius=30)
         if game_result == -1:
-            write_text("You lose", font, "red", 310, 230)
+            write_text("You lose", font, (236, 255, 235), 500, 380)
         elif game_result == 1:
-            write_text("You win", font, "red", 310, 230)
+            write_text("You win", font, (236, 255, 235), 515, 380)
         if restart_button.draw(window):
             game_over = False
             start_level = False

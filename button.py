@@ -1,14 +1,12 @@
 import pygame as pg
 
 class Button:
-    def __init__(self, x, y, image, scale):
-        width = image.get_width()
-        height = image.get_height()
-        self.image = pg.transform.scale(image, (int(width * scale), int(height * scale)))
+    def __init__(self, x, y, image, single_click):
+        self.image = image
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.clicked = False
-        self.hovered = False
+        self.single_click = single_click
 
         self.states = {
             "default": self.image.subsurface((0, 0, 184, 90)),
@@ -18,25 +16,22 @@ class Button:
         self.current_image = self.states["default"]
 
     def draw(self, surface):
-        action = False
         pos = pg.mouse.get_pos()
+        action = False
 
         if self.rect.collidepoint(pos):
-            self.hovered = True
             if pg.mouse.get_pressed()[0] == 1 and not self.clicked:
-                self.clicked = True
-                self.current_image = self.states["clicked"]
                 action = True
-            elif pg.mouse.get_pressed()[0] == 0 and self.clicked:
+                self.current_image = self.states["clicked"]
+                if self.single_click:
+                    self.clicked = True
+            elif pg.mouse.get_pressed()[0] == 0:
                 self.clicked = False
-        else:
-            self.hovered = False
-
-        if not self.clicked:
-            if self.hovered:
                 self.current_image = self.states["hover"]
             else:
-                self.current_image = self.states["default"]
+                self.current_image = self.states["hover"]
+        else:
+            self.current_image = self.states["default"]
 
-        surface.blit(self.current_image, (self.rect.x, self.rect.y))
+        surface.blit(self.current_image, self.rect)
         return action

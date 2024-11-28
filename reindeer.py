@@ -7,7 +7,7 @@ class Reindeer(Opponent):
         self.health = 15
         self.speed = 3
 
-        self.speed = 8.5
+        self.speed = 2
         self.frames = opponent.load_sprite_sheet(sprite_sheet, 96, 96)
         self.image = self.frames[0][0]
         self.rect = self.image.get_rect()

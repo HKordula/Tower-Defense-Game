@@ -19,7 +19,7 @@ class Opponent(pg.sprite.Sprite):
         self.routes = routes
         self.pos = Vector2(self.routes[0])
         self.step = 1
-        self.speed = 2
+        self.speed = 1
         self.sprite_sheet = sprite_sheet
         self.frames = load_sprite_sheet(sprite_sheet, 64, 64)
         self.direction = 'down'

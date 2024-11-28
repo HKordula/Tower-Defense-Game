@@ -1,7 +1,7 @@
 
-ROWS = 40
-COLS = 30
-TILE_SIZE = 32
+ROWS = 20
+COLS = 15
+TILE_SIZE = 64
 
 WINDOW_WIDTH = ROWS * TILE_SIZE
 WINDOW_HEIGHT = COLS * TILE_SIZE
@@ -11,7 +11,7 @@ FPS = 60
 HEALTH = 100
 MONEY = 1100
 
-TOWER_PRICE = 100
+TOWER_PRICE = 0
 TOWER_UPGRADE = 100
 
 DAMAGE = 20
@@ -19,36 +19,36 @@ BOUNTY = 50
 PUNISH = 100
 REWARD = 100
 
-LEVELS = 1
+LEVELS = 5
 
 routes = [
-    (128, 0),
-    (128, 283),
-    (832, 283),
-    (832, 123),
-    (1152, 123),
-    (1152, 795),
-    (608, 795),
-    (608, 539),
-    (416, 539),
-    (416, 795),
-    (192, 795),
-    (192, 603),
-    (0, 603)
+    (128, 0), #start
+    (128, 303), #down
+    (832, 303), #right
+    (832, 113), #up
+    (1152, 113), #right
+    (1152, 815), #down
+    (638, 815), #left
+    (638, 554), #up
+    (386, 554), #left
+    (386, 815), #down
+    (192, 815), #left
+    (192, 618), #up
+    (0, 618) #left
 ]
 
 MAX_LEVEL = 3
 TOWER_LEVEL = [
     {
-        "range": 90,
+        "range": 100,
         "cooldown": 1500,
     },
     {
-        "range": 100,
+        "range": 150,
         "cooldown": 1300,
     },
     {
-        "range": 120,
+        "range": 200,
         "cooldown": 1000,
     },
 ]
@@ -56,9 +56,9 @@ TOWER_LEVEL = [
 SPAWN_COOLDOWN = 400
 WAVES_DATA = [
     {
-        "elf": 1,
-        "reindeer": 1,
-        "santa_claus": 0
+        "elf": 10,
+        "reindeer": 5,
+        "santa_claus": 1
     },
     {
         "elf": 20,
