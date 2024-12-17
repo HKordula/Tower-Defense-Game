@@ -1,4 +1,3 @@
-
 ROWS = 20
 COLS = 15
 TILE_SIZE = 64
@@ -9,15 +8,15 @@ CONTROL_PANEL = 500
 FPS = 60
 
 HEALTH = 100
-MONEY = 1100
+MONEY = 500
 
-TOWER_PRICE = 0
-TOWER_UPGRADE = 100
+TOWER_PRICE = 100
+TOWER_UPGRADE = 200
 
 DAMAGE = 20
-BOUNTY = 50
-PUNISH = 100
-REWARD = 100
+BOUNTY = 25
+PUNISH = 10
+REWARD = 50
 
 LEVELS = 5
 
@@ -40,12 +39,12 @@ routes = [
 MAX_LEVEL = 3
 TOWER_LEVEL = [
     {
-        "range": 100,
+        "range": 115,
         "cooldown": 1500,
     },
     {
         "range": 150,
-        "cooldown": 1300,
+        "cooldown": 1000,
     },
     {
         "range": 200,
@@ -53,7 +52,7 @@ TOWER_LEVEL = [
     },
 ]
 
-SPAWN_COOLDOWN = 400
+SPAWN_COOLDOWN = 300
 WAVES_DATA = [
     {
         "elf": 10,
@@ -62,22 +61,29 @@ WAVES_DATA = [
     },
     {
         "elf": 20,
-        "reindeer": 4,
+        "reindeer": 10,
         "santa_claus": 2
     },
     {
-        "elf": 20,
-        "reindeer": 8,
-        "santa_claus": 2
+        "elf": 30,
+        "reindeer": 15,
+        "santa_claus": 3
     },
     {
-        "elf": 20,
-        "reindeer": 8,
+        "elf": 40,
+        "reindeer": 20,
         "santa_claus": 4
     },
     {
-        "elf": 20,
-        "reindeer": 10,
+        "elf": 50,
+        "reindeer": 25,
         "santa_claus": 5
     }
 ]
+
+DIRECTION_MAP = {
+            'down': 0,
+            'left': 1,
+            'right': 2,
+            'up': 3
+        }

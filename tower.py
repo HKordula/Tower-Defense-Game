@@ -1,18 +1,9 @@
 import pygame as pg
 import math
-from snowball import Snowball  # Assuming Snowball is in a separate file
-import constants as const
 
-def load_sprite_sheet(sheet, frame_width, frame_height):
-    sheet_rect = sheet.get_rect()
-    sprites = []
-    for row in range(sheet_rect.height // frame_height):
-        row_sprites = []
-        for col in range(sheet_rect.width // frame_width):
-            frame = sheet.subsurface(pg.Rect(col * frame_width, row * frame_height, frame_width, frame_height))
-            row_sprites.append(frame)
-        sprites.append(row_sprites)
-    return sprites
+from utils import load_sprite_sheet
+from snowball import Snowball
+import constants as const
 
 class Tower(pg.sprite.Sprite):
     def __init__(self, image, tile_x, tile_y):
@@ -24,13 +15,11 @@ class Tower(pg.sprite.Sprite):
         self.picked = False
         self.target = None
 
-        # Tower position on the grid
         self.tile_x = tile_x
         self.tile_y = tile_y
         self.x = (tile_x + 0.5) * const.TILE_SIZE
         self.y = (tile_y + 0.5) * const.TILE_SIZE
 
-        # Animation and visuals
         self.sprite_sheet = image
         self.frames = load_sprite_sheet(self.sprite_sheet, 64, 64)
         self.frame_index = 0
@@ -44,12 +33,10 @@ class Tower(pg.sprite.Sprite):
         self.cycle_timer = pg.time.get_ticks()
         self.apply_damage = False
 
-        # Targeting and attack
-        self.snowball_image = pg.image.load('assets/snowball.png').convert_alpha()
+        self.snowball_image = pg.image.load('assets/towers/snowball.png').convert_alpha()
         self.snowball_group = pg.sprite.Group()
         self.current_snowball = None
 
-        # Range display
         self.range_area = pg.Surface((self.range * 2, self.range * 2))
         self.range_area.fill((180, 0, 0))
         self.range_area.set_colorkey((180, 0, 0))
@@ -106,7 +93,6 @@ class Tower(pg.sprite.Sprite):
         self.snowball_group.update()
 
     def draw(self, surface):
-        # Draw the tower and its active snowballs
         surface.blit(self.image, self.rect)
         self.snowball_group.draw(surface)
         if self.picked:

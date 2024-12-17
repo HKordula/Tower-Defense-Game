@@ -1,13 +1,13 @@
 import opponent
 from opponent import Opponent
+import constants as const
 
 class Reindeer(Opponent):
     def __init__(self, routes, sprite_sheet):
         super().__init__(routes, sprite_sheet)
-        self.health = 15
-        self.speed = 3
+        self.health = 30
+        self.speed = 1.2
 
-        self.speed = 2
         self.frames = opponent.load_sprite_sheet(sprite_sheet, 96, 96)
         self.image = self.frames[0][0]
         self.rect = self.image.get_rect()
@@ -18,11 +18,4 @@ class Reindeer(Opponent):
         if self.animation_timer >= 1:
             self.animation_timer = 0
             self.frame_index = (self.frame_index + 1) % 2
-
-        direction_map = {
-            'down': 0,
-            'left': 1,
-            'right': 2,
-            'up': 3
-        }
-        self.image = self.frames[direction_map[self.direction]][self.frame_index]
+        self.image = self.frames[const.DIRECTION_MAP[self.direction]][self.frame_index]

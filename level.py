@@ -1,13 +1,11 @@
 import random
 
-import pygame as pg
 import constants as const
 from elf import Elf
 from reindeer import Reindeer
 from santa_claus import SantaClaus
 
-
-class Level():
+class Level:
     def __init__(self, level_img):
         self.opponent_list = []
         self.image = level_img
@@ -31,7 +29,8 @@ class Level():
                 self.opponent_list.append(name)
         random.shuffle(self.opponent_list)
 
-    def get_opponent(self, name, routes, sprite_sheet):
+    @staticmethod
+    def get_opponent(name, routes, sprite_sheet):
         if name == "elf":
             return Elf(routes, sprite_sheet)
         elif name == "reindeer":

@@ -8,7 +8,8 @@ class Snowball(pg.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(center=start_pos)
         self.target = target
-        self.speed = 1.8
+        self.speed = 2.2
+
     def update(self):
         if self.target:
             target_pos = self.target.rect.center
