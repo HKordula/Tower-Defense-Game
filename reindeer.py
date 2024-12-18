@@ -4,16 +4,19 @@ import constants as const
 
 class Reindeer(Opponent):
     def __init__(self, routes, sprite_sheet):
+        # Inicjalizacja klasy bazowej (Opponent)
         super().__init__(routes, sprite_sheet)
         self.health = 30
         self.speed = 1.2
 
+        # Wczytanie klatek animacji
         self.frames = opponent.load_sprite_sheet(sprite_sheet, 96, 96)
         self.image = self.frames[0][0]
         self.rect = self.image.get_rect()
         self.animation_speed = 0.15
 
     def animate(self):
+        # Animacja poruszania się dostosowana do sprite'a renifera
         self.animation_timer += self.animation_speed
         if self.animation_timer >= 1:
             self.animation_timer = 0

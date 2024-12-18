@@ -5,18 +5,23 @@ from level import Level
 from tower import Tower
 from utils import load_images, control_panel, create_buttons, write_text
 
+# Inicjalizacja Pygame
 pg.init()
 
+# Ustawienie zegara
 clock = pg.time.Clock()
 
+# Utworzenie okna, w którym będzie wyświetlana gra
 window = pg.display.set_mode((const.WINDOW_WIDTH + const.CONTROL_PANEL, const.WINDOW_HEIGHT))
 pg.display.set_caption("Tower Defence Game")
 
+# Załadowanie obrazów do gry
 (level_image, hitbox_image, tower_image, snowball_image, opponent_img, opponent_idle_img,
  buy_button_image, upgrade_button_image, cancel_button_image, start_button_image,
  restart_button_image, speed_button_image, tower_mouse_image, level_icon,
  health_icon, money_icon, tower_icon) = load_images()
 
+# Utworzenie instancji klasy Level, przeciwników i wież
 level = Level(level_image)
 level.spawn_opponents()
 
@@ -24,8 +29,10 @@ tower_group = pg.sprite.Group()
 opponent_group = pg.sprite.Group()
 button_group = pg.sprite.Group()
 
+# Utworzenie czcionki do wyświetlania tekstu
 font = pg.font.SysFont("Courier New ", 60, bold= True)
 
+# Utworzenie przycisków funkcyjnych
 buy_button, upgrade_button, cancel_button, start_button, restart_button, speed_button = create_buttons({
     "buy": buy_button_image,
     "upgrade": upgrade_button_image,
@@ -35,6 +42,7 @@ buy_button, upgrade_button, cancel_button, start_button, restart_button, speed_b
     "speed": speed_button_image
 })
 
+# Ustawienie zmiennych rozgrywki
 start_level = False
 game_over = False
 game_result = 0
@@ -42,35 +50,13 @@ placing = False
 picked_tower = None
 last_opponent = pg.time.get_ticks()
 
-def placed_tower(position):
-    tile_x = position[0] // const.TILE_SIZE
-    tile_y = position[1] // const.TILE_SIZE
-    free_place = True
-    for tow in tower_group:
-        if (tile_x, tile_y) == (tow.tile_x, tow.tile_y):
-            free_place = False
-    color = hitbox_image.get_at((position[0] // const.TILE_SIZE, position[1] // const.TILE_SIZE))
-    if free_place and color == (0, 0, 0):
-        tower = Tower(tower_image, tile_x, tile_y)
-        tower_group.add(tower)
-        level.money -= const.TOWER_PRICE
-        print(tower_group)
-
-def pick_tower(position):
-    tile_x = position[0] // const.TILE_SIZE
-    tile_y = position[1] // const.TILE_SIZE
-    for tow in tower_group:
-        if(tile_x, tile_y) == (tow.tile_x, tow.tile_y):
-            return tow
-
-def drop_tower():
-    for tow in tower_group:
-        tow.picked = False
-
+# Pętla gry
 run = True
 while run:
+    # Ustawienie zeagra
     clock.tick(const.FPS)
 
+    # Logika końca gry
     if not game_over:
         if level.health <= 0:
             game_over = True
@@ -85,9 +71,9 @@ while run:
         if picked_tower:
             picked_tower.picked = True
 
+    # Rysowanie mapy, przeciwników, wież i panelu sterowania
     level.draw(window)
-
-    pg.draw.lines(window, "white", False, const.routes)
+    #pg.draw.lines(window, "white", False, const.routes)
 
     opponent_group.draw(window)
     for tower in tower_group:
@@ -96,14 +82,17 @@ while run:
     control_panel(window, level, font, const, opponent_idle_img, level_icon, health_icon, money_icon, tower_icon)
 
     if not game_over:
+        # Logika startu poziomu
         if not start_level:
             if start_button.draw(window):
                 start_level = True
         else:
+            # Zmiana prędkości gry
             level.speed = 1
             if speed_button.draw(window):
                 level.speed = 2
 
+            # Logika pojawiania się przeciwników
             if pg.time.get_ticks() - last_opponent > const.SPAWN_COOLDOWN:
                 if level.spawned < len(level.opponent_list):
                     opponent_type = level.opponent_list[level.spawned]
@@ -112,6 +101,7 @@ while run:
                     level.spawned += 1
                     last_opponent = pg.time.get_ticks()
 
+        # Zwiększenie levelu
         if level.level_up():
             start_level = False
             level.level += 1
@@ -120,6 +110,7 @@ while run:
             level.spawn_opponents()
             level.money += const.REWARD
 
+        # Kupowanie i ulepszanie wież
         if buy_button.draw(window):
             placing = True
         if placing:
@@ -137,6 +128,7 @@ while run:
                         picked_tower.level_up()
                         level.money -= const.TOWER_UPGRADE
     else:
+        # Ekran końca gry
         pg.draw.rect(window, (92, 0, 0), (const.WINDOW_WIDTH / 2 - 200, const.WINDOW_HEIGHT / 2 - 125, 400, 250), border_radius=30)
         pg.draw.rect(window, "black", (const.WINDOW_WIDTH / 2 - 200, const.WINDOW_HEIGHT / 2 - 125, 400, 250), 5, border_radius=30)
         if game_result == -1:
@@ -144,6 +136,7 @@ while run:
         elif game_result == 1:
             write_text(window, "You win", font, (236, 255, 235), 515, 380)
         if restart_button.draw(window):
+            # Resetowanie gry
             game_over = False
             start_level = False
             placing = False
@@ -156,19 +149,25 @@ while run:
             opponent_group.empty()
             tower_group.empty()
 
+    # Obsługa zdarzeń
     for event in pg.event.get():
+        # Zamykanie okna
         if event.type == pg.QUIT:
             run = False
+        # Wybieranie wieży
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             position = pg.mouse.get_pos()
             if position[0] < const.WINDOW_WIDTH and position[1] < const.WINDOW_HEIGHT:
                 picked_tower = None
-                drop_tower()
+                Tower.drop_tower(tower_group)
+                # Umieszczanie wieży
                 if placing:
                     if level.money >= const.TOWER_PRICE:
-                        placed_tower(position)
+                        Tower.placed_tower(position,tower_group, hitbox_image, tower_image, level)
                 else:
-                    picked_tower = pick_tower(position)
+                    picked_tower = Tower.pick_tower(position, tower_group)
+    # Odświeżenie okna
     pg.display.flip()
 
+# Zamknięcie Pygame
 pg.quit()

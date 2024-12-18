@@ -3,6 +3,7 @@ import pygame as pg
 from button import Button
 import constants as const
 
+# Funkcja ładująca klatki animacji z arkusza spritów
 def load_sprite_sheet(sheet, frame_width, frame_height):
     sheet_rect = sheet.get_rect()
     sprites = []
@@ -14,6 +15,7 @@ def load_sprite_sheet(sheet, frame_width, frame_height):
         sprites.append(row_sprites)
     return sprites
 
+# Funkcja ładująca obrazy
 def load_images():
     try:
         level_image = pg.image.load('assets/map/map1.png').convert_alpha()
@@ -54,6 +56,7 @@ def load_images():
         pg.quit()
         exit()
 
+# Funkcja rysująca panel sterowania
 def control_panel(window, level, font, const, opponent_idle_img, level_icon, health_icon, money_icon, tower_icon):
     pg.draw.rect(window, (92, 0, 0), (const.WINDOW_WIDTH, 0, const.CONTROL_PANEL, const.WINDOW_HEIGHT))
     pg.draw.rect(window, "black", (const.WINDOW_WIDTH, 0, const.CONTROL_PANEL, const.WINDOW_HEIGHT), 5)
@@ -80,10 +83,12 @@ def control_panel(window, level, font, const, opponent_idle_img, level_icon, hea
     window.blit(opponent_idle_img["santa_claus"], (const.WINDOW_WIDTH + 325, 850))
     write_text(window, str(opponent_counts[2]), font, (236, 255, 235), const.WINDOW_WIDTH + 395, 860)
 
+# Funkcja wypisująca tekst
 def write_text(window, text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     window.blit(img, (x, y))
 
+# Funkcja tworząca przyciski
 def create_buttons(button_images):
     buy_button = Button(const.WINDOW_WIDTH + 100, 210, button_images["buy"], True)
     upgrade_button = Button(const.WINDOW_WIDTH + 100, 210, button_images["upgrade"], True)

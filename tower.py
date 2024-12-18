@@ -15,17 +15,13 @@ class Tower(pg.sprite.Sprite):
         self.picked = False
         self.target = None
 
-        self.tile_x = tile_x
-        self.tile_y = tile_y
         self.x = (tile_x + 0.5) * const.TILE_SIZE
         self.y = (tile_y + 0.5) * const.TILE_SIZE
 
-        self.sprite_sheet = image
-        self.frames = load_sprite_sheet(self.sprite_sheet, 64, 64)
+        self.frames = load_sprite_sheet(image, 64, 64)
         self.frame_index = 0
         self.image = self.frames[0][0]
-        self.rect = self.image.get_rect()
-        self.rect.center = (self.x, self.y)
+        self.rect = self.image.get_rect(center=(self.x, self.y))
         self.animation_speed = 0.3
         self.animation_timer = 0
         self.cycle_complete = False
@@ -45,22 +41,22 @@ class Tower(pg.sprite.Sprite):
         self.range_rect = self.range_area.get_rect()
         self.range_rect.center = self.rect.center
 
-        self.snowball_positions = [
-            (self.x - 30, self.y + 20),
-            (self.x - 30, self.y + 20),
-        ]
-
+    # Strzelanie śnieżką
     def shoot_snowball(self):
         if self.target:
-            start_pos = self.snowball_positions[self.frame_index]
+            start_pos = (self.x - 30, self.y + 20)
             self.current_snowball = Snowball(self.snowball_image, start_pos, self.target)
             self.snowball_group.add(self.current_snowball)
 
+    # Animacja wieży
     def animate(self):
+        # Rozpoczęcie strzelania
         if self.frame_index == 0 and not self.current_snowball:
             self.shoot_snowball()
 
+        # Sprawdzenie czy cykl animacji się zakończył
         if self.cycle_complete:
+            # Sprawdzenie czy minął czas od zakończenia cyklu
             if pg.time.get_ticks() - self.cycle_timer >= self.cycle_delay:
                 if self.current_snowball:
                     self.current_snowball.fired = True
@@ -69,6 +65,7 @@ class Tower(pg.sprite.Sprite):
                 self.frame_index = 0
                 self.cycle_timer = pg.time.get_ticks()
         else:
+            # Animacja wieży
             self.animation_timer += self.animation_speed
             if self.animation_timer >= 1:
                 self.animation_timer = 0
@@ -80,6 +77,7 @@ class Tower(pg.sprite.Sprite):
 
                 self.image = self.frames[0][self.frame_index]
 
+    # Aktualizacja stanu wieży
     def update(self, opponent_group, level):
         if self.target:
             self.animate()
@@ -90,14 +88,16 @@ class Tower(pg.sprite.Sprite):
             if pg.time.get_ticks() - self.last_snowball > (self.cooldown / level.speed):
                 self.choose_opponent(opponent_group)
 
-        self.snowball_group.update()
+        self.snowball_group.update(level)
 
+    # Rysowanie wieży na ekranie
     def draw(self, surface):
         surface.blit(self.image, self.rect)
         self.snowball_group.draw(surface)
         if self.picked:
             surface.blit(self.range_area, self.range_rect)
 
+    # Wybór przeciwnika, którego wieża będzie atakować
     def choose_opponent(self, opponent_group):
         for opp in opponent_group:
             if opp.health > 0:
@@ -108,6 +108,7 @@ class Tower(pg.sprite.Sprite):
                     self.target = opp
                     break
 
+    # Zwiększenie poziomu wieży
     def level_up(self):
         self.level += 1
         self.range = const.TOWER_LEVEL[self.level - 1].get("range")
@@ -120,3 +121,31 @@ class Tower(pg.sprite.Sprite):
         self.range_area.set_alpha(100)
         self.range_rect = self.range_area.get_rect()
         self.range_rect.center = self.rect.center
+
+    # Funkcja do umieszczania wieży
+    @staticmethod
+    def placed_tower(position, tower_group, hitbox_image, tower_image, level):
+        tile_x, tile_y = position[0] // const.TILE_SIZE, position[1] // const.TILE_SIZE
+        free_place = True
+        for tow in tower_group:
+            if (tile_x, tile_y) == (tow.tile_x, tow.tile_y):
+                free_place = False
+        color = hitbox_image.get_at((position[0] // const.TILE_SIZE, position[1] // const.TILE_SIZE))
+        if free_place and color == (0, 0, 0):
+            tower = Tower(tower_image, tile_x, tile_y)
+            tower_group.add(tower)
+            level.money -= const.TOWER_PRICE
+
+    # Funcja do wyboru wieży
+    @staticmethod
+    def pick_tower(position, tower_group):
+        tile_x, tile_y = position[0] // const.TILE_SIZE, position[1] // const.TILE_SIZE
+        for tow in tower_group:
+            if (tile_x, tile_y) == (tow.tile_x, tow.tile_y):
+                return tow
+
+    # Funkcja do anulowania wyboru wieży
+    @staticmethod
+    def drop_tower(tower_group):
+        for tow in tower_group:
+            tow.picked = False
