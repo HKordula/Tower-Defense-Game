@@ -61,7 +61,7 @@ while run:
         if level.health <= 0:
             game_over = True
             game_result = -1
-        if level.level > const.LEVELS:
+        if level.level == const.LEVELS and not opponent_group:
             game_over = True
             game_result = 1
 
@@ -90,7 +90,7 @@ while run:
             # Zmiana prędkości gry
             level.speed = 1
             if speed_button.draw(window):
-                level.speed = 2
+                level.speed = 1.5
 
             # Logika pojawiania się przeciwników
             if pg.time.get_ticks() - last_opponent > const.SPAWN_COOLDOWN:

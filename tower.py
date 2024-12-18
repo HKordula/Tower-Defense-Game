@@ -15,6 +15,8 @@ class Tower(pg.sprite.Sprite):
         self.picked = False
         self.target = None
 
+        self.tile_x = tile_x
+        self.tile_y = tile_y
         self.x = (tile_x + 0.5) * const.TILE_SIZE
         self.y = (tile_y + 0.5) * const.TILE_SIZE
 
